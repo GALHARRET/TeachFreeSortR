@@ -38,9 +38,13 @@
 #'
 #' @importFrom stats cmdscale as.dist
 #' @export
-compute_mds <- function(dissim_matrix, k = 2, method = c("classical", "nonmetric"),sc=FALSE) {
+compute_mds <- function(dissim_matrix, k = 2, method = c("classical", "nonmetric"), sc = FALSE) {
 
   method <- match.arg(method)
+
+  if (!requireNamespace("smacof", quietly = TRUE)) {
+    stop("Package 'smacof' is required. Please install it.")
+  }
 
   # --- Input checks ---
   if (!is.matrix(dissim_matrix)) {
@@ -60,63 +64,62 @@ compute_mds <- function(dissim_matrix, k = 2, method = c("classical", "nonmetric
     stop("`k` must be smaller than the number of products.")
   }
 
-  d <- stats::as.dist(dissim_matrix)
+  labels <- rownames(dissim_matrix)
+
+  # --- Helper: rotate configuration to orthogonal, variance-ordered axes ---
+  rotate_config <- function(points, k, sc) {
+    Config <- scale(points, center = TRUE, scale = sc)
+    W <- Config %*% t(Config)
+    bid <- svd(W)
+
+    if (k > 1) {
+      Config <- bid$u[, 1:k] %*% sqrt(diag(bid$d[1:k]))
+    } else {
+      Config <- as.matrix(bid$u[, 1] * sqrt(bid$d[1]))
+    }
+
+    Percent <- bid$d[1:k] / sum(bid$d[1:k])
+    colnames(Config) <- paste0("Dim", seq_len(k))
+    rownames(Config) <- labels
+
+    list(config = Config, percent = Percent, eig = sqrt(bid$d[1:k]))
+  }
 
   # --- Compute MDS ---
   if (method == "classical") {
 
-    fit <- smacof::smacofSym(dissim_matrix, ndim = k, type = "interval", 
-        verbose = FALSE)
+    fit <- smacof::smacofSym(dissim_matrix, ndim = k, type = "interval", verbose = FALSE)
+    Stress <- sqrt(sum((fit$dhat - fit$confdist)^2) / sum(fit$confdist^2))
 
-    points <- fit$conf
-    colnames(points) <- paste0("Dim", seq_len(k))
-    Stress <- sqrt(sum((fit$dhat - fit$confdist)^2)/sum(fit$confdist^2))
-    Config <- scale(points, center = TRUE, scale = sc)
-    W <- Config %*% t(Config)
-    bid <- svd(W)
-    Config <- bid$u[, 1:k] %*% sqrt(diag(bid$d[1:k]))
-    Percent <- bid$d[1:k]/sum(bid$d[1:k])  
-    colnames(Config)<-paste("Dim",1:k,sep="")
-    rownames(Config)<-rownames(D)  
+    rot <- rotate_config(fit$conf, k, sc)
+
     result <- list(
-      points = Config,
-      stress = Stress,
-      explain_var=Percent,
-      method = method
+      points      = rot$config,
+      eig         = rot$eig,
+      stress      = Stress,
+      explain_var = rot$percent,
+      method      = method
     )
 
   } else {
 
-    if (!requireNamespace("MASS", quietly = TRUE)) {
-      stop("Package 'MASS' is required for non-metric MDS. Please install it.")
+    if (any(dissim_matrix[lower.tri(dissim_matrix)] == 0)) {
+      warning("Zero dissimilarities detected; adding a small jitter before smacofSym().")
+      dissim_matrix[lower.tri(dissim_matrix)][dissim_matrix[lower.tri(dissim_matrix)] == 0] <- 1e-6
+      dissim_matrix <- (dissim_matrix + t(dissim_matrix)) / 2  # re-symmetrize after jitter
     }
 
-    if (any(d == 0)) {
-      warning("Zero dissimilarities detected; adding a small jitter for isoMDS().")
-      d[d == 0] <- d[d == 0] + 1e-6
-    }
+    fit <- smacof::smacofSym(dissim_matrix, ndim = k, type = "ordinal", ties = "primary", verbose = FALSE)
+    Stress <- sqrt(sum((fit$dhat - fit$confdist)^2) / sum(fit$confdist^2))
 
-    fit <- smacof::smacofSym(dissim_matrix, ndim = k, type = "ordinal",ties="primary", 
-        verbose = FALSE)
+    rot <- rotate_config(fit$conf, k, sc)
 
-    points <- fit$conf
-    #colnames(points) <- paste0("Dim", seq_len(k))
-
-    Config <- scale(points, center = TRUE, scale = sc)
-    W <- Config %*% t(Config)
-    bid <- svd(W)
-    Config <- bid$u[, 1:k] %*% sqrt(diag(bid$d[1:k]))
-    Eig<-sqrt(bid$d[1:k])
-    Stress <- sqrt(sum((fit$dhat - fit$confdist)^2)/sum(fit$confdist^2))
-    Percent <- bid$d[1:k]/sum(bid$d[1:k])
-    colnames(Config)<-paste("Dim",1:k,sep="")
-    rownames(Config)<-rownames(D)  
     result <- list(
-      points = Config,
-      eig=Eig,
-      stress = Stress,
-      explain_var=Percent,
-      method = method
+      points      = rot$config,
+      eig         = rot$eig,
+      stress      = Stress,
+      explain_var = rot$percent,
+      method      = method
     )
   }
 
