@@ -8,7 +8,7 @@
 #' @return The mean ARI between \code{partition} and each column of
 #'   \code{data}.
 #'
-#' @keywords internal
+#' @export
 mean_ari <- function(partition, data) {
   mean(vapply(seq_len(ncol(data)), function(j) {
     adjusted_rand_index(partition, data[[j]])

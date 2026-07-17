@@ -10,7 +10,7 @@
 #' @return A single numeric value (ARI), equal to 1 for identical partitions
 #'   and close to 0 for partitions no more similar than chance.
 #'
-#' @keywords internal
+#' @export internal
 
 adjusted_rand_index <- function(part1, part2) {
 
