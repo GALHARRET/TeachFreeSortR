@@ -139,7 +139,7 @@ consensus_partition <- function(data,
         tabsubjopt <- matrix(0L, n_products, n_products - 2)
         tabcritopt <- matrix(0, 1, n_products - 2)
         colnames(tabsubjopt) <- 2:(n_products - 1)
-        names(tabcritopt) <- 2:(n_products - 1)
+        colnames(tabcritopt) <- 2:(n_products - 1)
 
         for (groups in 2:(n_products - 1)) {
           Cons <- stats::cutree(hres, k = groups)
