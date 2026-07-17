@@ -257,5 +257,5 @@ consensus_partition <- function(data,
     print(consensus)
   }
 
-  return(list(Consensus = consensus, Crit = maxcrit))
+  return(list(consensus = consensus, crit = maxcrit))
 }
