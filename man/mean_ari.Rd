@@ -20,4 +20,3 @@ The mean ARI between \code{partition} and each column of
 \description{
 Mean Adjusted Rand Index between a partition and a set of partitions
 }
-\keyword{internal}

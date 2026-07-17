@@ -19,4 +19,3 @@ and close to 0 for partitions no more similar than chance.
 Computes the Adjusted Rand Index (ARI) between two partitions of the same
 set of objects, as defined by Hubert & Arabie (1985).
 }
-\keyword{internal}
