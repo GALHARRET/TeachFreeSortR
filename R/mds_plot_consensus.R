@@ -30,8 +30,7 @@
 #'
 #' @return A \code{ggplot} object.
 #'
-#' @importFrom ggplot2 ggplot aes geom_point stat_ellipse theme_bw labs
-#'   ggtitle theme coord_fixed scale_color_discrete scale_fill_discrete
+#' @importFrom ggplot2 ggplot aes geom_point stat_ellipse theme_bw labs ggtitle theme coord_fixed scale_color_discrete scale_fill_discrete
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom dplyr group_by summarise left_join
 #' @importFrom rlang .data

@@ -22,8 +22,7 @@
 #' @return A \code{ggplot} object.
 #'
 #' @importFrom stats cmdscale
-#' @importFrom ggplot2 ggplot aes geom_point stat_ellipse theme_bw labs
-#'   ggtitle theme coord_fixed
+#' @importFrom ggplot2 ggplot aes geom_point stat_ellipse theme_bw labs ggtitle theme coord_fixed
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom dplyr group_by summarise
 #' @importFrom rlang .data
