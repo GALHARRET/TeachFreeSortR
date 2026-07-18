@@ -13,7 +13,7 @@
 #' @export 
 rand_index<-function(part1,part2){
   dta<-cbind(part1,part2)
-  tab<-dissim_partition(dta)
+  part<-dissim_partition(dta)
   p=dim(dta)[1]
-return((sum(tab$part1==tab$part2)-p)/(p*(p-1)))
+return((sum(part$S1==part$S2)-p)/(p*(p-1)))
 }
