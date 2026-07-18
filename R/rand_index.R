@@ -14,6 +14,6 @@
 rand_index<-function(part1,part2){
   part1<-dissim_partition(as.matrix(part1))
   part2<-dissim_partition(as.matrix(part2))
-  p=dim(part1)[1]
-return((sum(part1==part2)-p)/(p*(p-1)))
+  p=dim(part1$V1)[1]
+return((sum(part1$V1==part2$V1)-p)/(p*(p-1)))
 }
