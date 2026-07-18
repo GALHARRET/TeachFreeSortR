@@ -15,5 +15,5 @@ rand_index<-function(part1,part2){
   dta<-cbind(part1,part2)
   tab<-dissim_partition(dta)
   p=dim(dta)[1]
-return(1-sum(tab$part1!=tab$part2)/(p*(p-1)))
+return((sum(tab$part1==tab$part2)-p)/(p*(p-1)))
 }
