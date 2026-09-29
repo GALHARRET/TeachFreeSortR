@@ -4,7 +4,14 @@
 \alias{bootstrap_mds}
 \title{Bootstrap MDS configurations with Procrustes alignment}
 \usage{
-bootstrap_mds(data, k = 2, n_boot = 200, method = "classical", sc = FALSE)
+bootstrap_mds(
+  data,
+  k = 2,
+  n_boot = 200,
+  method = "classical",
+  sc = FALSE,
+  center_on_observed = TRUE
+)
 }
 \arguments{
 \item{data}{A matrix or data.frame with products in rows and individuals
@@ -18,11 +25,18 @@ in columns (group labels), as used in \code{\link{total_dissim}}.}
 Defaults to \code{"classical"}.}
 
 \item{sc}{Scaling or not the configuration.}
+
+\item{center_on_observed}{Logical. If \code{TRUE} (default), each product's
+bootstrap cloud is translated so that its mean coincides with the
+observed (reference) coordinates of that product. The dispersion
+(covariance) of the cloud is unchanged, so ellipses drawn with
+\code{ggplot2::stat_ellipse()} are centred on the observed points.}
 }
 \value{
-A data.frame with columns \code{product}, \code{Dim1}, ...,
-\code{DimK}, \code{replicate}, suitable for plotting with
-\code{ggplot2::stat_ellipse()} grouped by \code{product}.
+A data.frame with columns \code{Dim1}, ..., \code{DimK},
+\code{product}, \code{replicate}, suitable for plotting with
+\code{ggplot2::stat_ellipse()} grouped by \code{product}. The reference
+configuration is attached as attribute \code{"reference"}.
 }
 \description{
 Performs bootstrap resampling over individuals to assess the stability of

@@ -38,7 +38,8 @@ A \code{ggplot} object.
 Performs bootstrap resampling over individuals to assess the stability of
 an MDS configuration. Each bootstrap replicate's configuration is aligned
 to the reference configuration via Procrustes analysis before being
-collected, allowing confidence ellipses to be drawn per product. If
+collected, allowing confidence ellipses to be drawn per product. Ellipses
+are centred on the observed (reference) coordinates. If
 \code{n_boot = 0}, only the reference configuration is plotted, without
 ellipses.
 }
