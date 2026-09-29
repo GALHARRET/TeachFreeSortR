@@ -12,8 +12,8 @@
 #'
 #' @export 
 rand_index<-function(part1,part2){
-  dta<-cbind(part1,part2)
-  tab<-dissim_partition(dta)
-  p=dim(dta)[1]
-return(1-sum(tab$part1!=tab$part2)/(p*(p-1)))
+  part1<-dissim_partition(as.matrix(part1))
+  part2<-dissim_partition(as.matrix(part2))
+  p=dim(part1$V1)[1]
+return((sum(part1$V1==part2$V1)-p)/(p*(p-1)))
 }
