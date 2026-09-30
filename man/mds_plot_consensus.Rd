@@ -58,4 +58,6 @@ Same as \code{\link{mds_plot}}, but points and confidence ellipses are
 colored according to the consensus partition of products (as returned by
 \code{\link{consensus_partition}}), instead of one color per product.
 Product labels are still displayed individually via \code{ggrepel}.
+Points, labels and ellipses are centred on the observed (reference)
+coordinates, not on the bootstrap means.
 }

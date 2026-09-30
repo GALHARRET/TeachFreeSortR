@@ -4,6 +4,8 @@
 #' colored according to the consensus partition of products (as returned by
 #' \code{\link{consensus_partition}}), instead of one color per product.
 #' Product labels are still displayed individually via \code{ggrepel}.
+#' Points, labels and ellipses are centred on the observed (reference)
+#' coordinates, not on the bootstrap means.
 #'
 #' @param data A matrix or data.frame with products in rows and individuals
 #'   in columns (group labels), as used in \code{\link{total_dissim}}.
@@ -32,7 +34,7 @@
 #'
 #' @importFrom ggplot2 ggplot aes geom_point stat_ellipse theme_bw labs ggtitle theme coord_fixed scale_color_discrete scale_fill_discrete
 #' @importFrom ggrepel geom_text_repel
-#' @importFrom dplyr group_by summarise left_join
+#' @importFrom dplyr left_join
 #' @importFrom rlang .data
 #' @export
 mds_plot_consensus <- function(data,
@@ -103,26 +105,28 @@ mds_plot_consensus <- function(data,
 
   if (n_boot > 0) {
 
-    boot_df <- bootstrap_mds(data, k = k, n_boot = n_boot, method = method, sc = sc)
-    boot_df <- dplyr::left_join(boot_df, group_df, by = "product")
+    # Bootstrap clouds re-centred on the observed coordinates
+    boot_df <- bootstrap_mds(data, k = k, n_boot = n_boot, method = method,
+                             sc = sc, center_on_observed = TRUE)
 
-    centres_boot <- boot_df |>
-      dplyr::group_by(.data$product, .data$group) |>
-      dplyr::summarise(
-        !!dim1_name := mean(.data[[dim1_name]]),
-        !!dim2_name := mean(.data[[dim2_name]]),
-        .groups = "drop"
-      )
+    # Observed (reference) configuration, retrieved before the join
+    # (left_join() drops custom attributes)
+    ref <- attr(boot_df, "reference")
+    centres_obs <- as.data.frame(ref)
+    centres_obs$product <- rownames(ref)
+    centres_obs <- dplyr::left_join(centres_obs, group_df, by = "product")
+
+    boot_df <- dplyr::left_join(boot_df, group_df, by = "product")
 
     p <- ggplot2::ggplot(boot_df, ggplot2::aes(x = .data[[dim1_name]], y = .data[[dim2_name]],
                                                 color = .data$group, fill = .data$group)) +
       ggplot2::stat_ellipse(ggplot2::aes(group = .data$product),
                              geom = "polygon", alpha = 0.15, level = 0.90) +
-      ggplot2::geom_point(data = centres_boot,
+      ggplot2::geom_point(data = centres_obs,
                            ggplot2::aes(x = .data[[dim1_name]], y = .data[[dim2_name]],
                                         color = .data$group),
                            size = 2, inherit.aes = FALSE) +
-      ggrepel::geom_text_repel(data = centres_boot,
+      ggrepel::geom_text_repel(data = centres_obs,
                                 ggplot2::aes(x = .data[[dim1_name]], y = .data[[dim2_name]],
                                              label = .data$product, color = .data$group),
                                 show.legend = FALSE, inherit.aes = FALSE)
